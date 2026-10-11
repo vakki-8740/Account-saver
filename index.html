@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F2F2F7" />
+<title>Accounts Page</title>
+
+<!-- ===== PWA / Install ===== -->
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" href="icons/favicon-64.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Accounts" />
+<style>
+  /* ============ Base ============ */
+  :root{
+    --bg:#F2F2F7;
+    --card:#FFFFFF;
+    --field:#F2F2F7;
+    --sep:#E5E5EA;
+    --blue:#007AFF;
+    --red:#FF3B30;
+    --green:#34C759;
+    --secondary:#8E8E93;
+    --tertiary:#C7C7CC;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:#000;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:120px;
+    min-height:100vh;
+  }
+  button{font-family:inherit;cursor:pointer;}
+  input{font-family:inherit;}
+
+  /* ============ Top bar ============ */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;
+    background:rgba(242,242,247,.88);
+    -webkit-backdrop-filter:saturate(180%) blur(18px);
+    backdrop-filter:saturate(180%) blur(18px);
+    border-bottom:.5px solid var(--sep);
+  }
+  .title{display:flex;align-items:center;gap:9px;}
+  .brand-logo{width:34px;height:auto;display:block;flex-shrink:0;object-fit:contain;}
+  .title h1{margin:0;font-size:27px;font-weight:700;letter-spacing:-.5px;}
+  .count{
+    font-size:12px;font-weight:700;color:#fff;background:var(--blue);
+    border-radius:999px;padding:2px 8px;line-height:1.5;
+  }
+  .icon-btn{
+    width:36px;height:36px;border:none;border-radius:11px;
+    background:rgba(120,120,128,.12);color:#1c1c1e;
+    display:grid;place-items:center;
+    transition:transform .15s ease,background .15s ease;
+  }
+  .icon-btn:active{transform:scale(.91);background:rgba(120,120,128,.22);}
+  .icon-btn svg{width:19px;height:19px;}
+
+  /* ============ Search ============ */
+  .search{position:relative;margin:14px 16px 4px;}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--secondary);pointer-events:none;}
+  .search input{
+    width:100%;height:40px;border:none;border-radius:12px;
+    background:rgba(118,118,128,.12);padding:0 12px 0 38px;
+    font-size:16px;color:#000;outline:none;
+  }
+  .search input::placeholder{color:var(--secondary);}
+
+  /* ============ List ============ */
+  .list{padding:10px 16px 0;display:flex;flex-direction:column;gap:12px;}
+  .card{
+    background:var(--card);border-radius:17px;padding:13px 13px 12px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+    animation:rise .34s cubic-bezier(.22,.9,.3,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+  .item-head{display:flex;align-items:center;gap:11px;}
+  .avatar{
+    width:40px;height:40px;border-radius:50%;background:var(--blue);
+    color:#fff;display:grid;place-items:center;font-size:17px;font-weight:600;flex-shrink:0;
+  }
+  .who{min-width:0;flex:1;}
+  .uname{font-size:16px;font-weight:600;letter-spacing:-.2px;word-break:break-word;}
+  .meta{font-size:11.5px;color:var(--secondary);margin-top:2px;}
+  .head-actions{display:flex;gap:6px;flex-shrink:0;}
+  .icon-btn.sm{width:32px;height:32px;border-radius:10px;}
+  .icon-btn.sm svg{width:17px;height:17px;}
+  .icon-btn.danger{color:var(--red);background:rgba(255,59,48,.10);}
+
+  .field{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--field);border-radius:13px;padding:8px 9px 8px 12px;margin-top:9px;
+  }
+  .field-main{min-width:0;flex:1;}
+  .field-label{
+    display:block;font-size:10.5px;font-weight:700;letter-spacing:.5px;
+    text-transform:uppercase;color:var(--secondary);margin-bottom:3px;
+  }
+  .field-value{font-size:15px;word-break:break-all;-webkit-user-select:text;user-select:text;letter-spacing:-.1px;}
+  .field-value.masked{letter-spacing:2px;color:#3A3A3C;}
+  .field-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .copy-btn{
+    display:flex;align-items:center;gap:5px;height:33px;padding:0 11px;border:none;
+    border-radius:10px;background:rgba(0,122,255,.12);color:var(--blue);
+    font-size:13px;font-weight:600;
+    transition:transform .15s ease,background .2s ease,color .2s ease;
+  }
+  .copy-btn:active{transform:scale(.93);}
+  .copy-btn svg{width:15px;height:15px;}
+  .copy-btn.done{background:rgba(52,199,89,.15);color:var(--green);}
+
+  /* ============ Empty ============ */
+  .empty{display:none;text-align:center;padding:66px 30px 40px;color:var(--secondary);}
+  .empty svg{width:54px;height:54px;color:var(--tertiary);margin-bottom:14px;}
+  .empty .brand-logo{width:104px;margin:0 auto 16px;}
+  .empty h3{margin:0 0 6px;font-size:17px;color:#000;font-weight:600;}
+  .empty p{margin:0;font-size:14px;line-height:1.45;}
+
+  /* ============ FAB ============ */
+  .fab{
+    position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom) + 20px);
+    width:58px;height:58px;border:none;border-radius:50%;
+    background:var(--blue);color:#fff;display:grid;place-items:center;z-index:30;
+    box-shadow:0 10px 24px rgba(0,122,255,.38);
+    transition:transform .2s cubic-bezier(.3,1.5,.5,1);
+  }
+  .fab:active{transform:scale(.9);}
+  .fab svg{width:26px;height:26px;}
+
+  /* ============ Sheets ============ */
+  .backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+    -webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);
+  }
+  .backdrop.open{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:var(--card);border-radius:22px 22px 0 0;
+    transform:translateY(110%);transition:transform .38s cubic-bezier(.32,.72,0,1);
+    max-height:93vh;overflow-y:auto;
+    padding:6px 18px calc(env(safe-area-inset-bottom) + 22px);
+    box-shadow:0 -10px 34px rgba(0,0,0,.14);
+  }
+  .sheet.open{transform:translateY(0);}
+  @media(min-width:640px){
+    .sheet{max-width:470px;margin:0 auto;border-radius:22px 22px 0 0;}
+  }
+  .grabber{width:38px;height:5px;border-radius:3px;background:#D1D1D6;margin:8px auto 2px;}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 16px;}
+  .sheet-head h2{margin:0;font-size:20px;font-weight:700;letter-spacing:-.3px;}
+  .sheet-head .link{border:none;background:none;color:var(--blue);font-size:16px;padding:4px 2px;}
+
+  .input-group{margin-bottom:13px;}
+  .input-group > label{
+    display:block;font-size:11px;font-weight:700;letter-spacing:.5px;
+    text-transform:uppercase;color:var(--secondary);margin:0 0 6px 3px;
+  }
+  .input-wrap{
+    display:flex;align-items:center;gap:10px;background:var(--field);
+    border-radius:13px;padding:0 12px;border:1.6px solid transparent;
+    transition:border-color .2s ease,background .2s ease;
+  }
+  .input-wrap:focus-within{border-color:var(--blue);background:#fff;}
+  .input-wrap.err{border-color:var(--red);}
+  .input-wrap > svg{width:18px;height:18px;color:var(--secondary);flex-shrink:0;}
+  .input-wrap input{
+    flex:1;min-width:0;height:47px;border:none;background:transparent;
+    font-size:16px;color:#000;outline:none;letter-spacing:-.1px;
+  }
+  .input-wrap input::placeholder{color:var(--tertiary);}
+  .eye{border:none;background:none;padding:4px;display:grid;place-items:center;color:var(--secondary);flex-shrink:0;}
+  .eye svg{width:18px;height:18px;}
+  .hint{font-size:12px;color:var(--red);margin:5px 0 0 3px;display:none;}
+  .hint.show{display:block;animation:rise .2s ease both;}
+
+  .btn{
+    width:100%;height:50px;border:none;border-radius:14px;
+    font-size:16.5px;font-weight:600;letter-spacing:-.2px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .15s ease,opacity .2s ease;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn svg{width:18px;height:18px;}
+  .btn-primary{background:var(--blue);color:#fff;margin-top:6px;}
+  .btn-ghost{background:var(--field);color:#000;margin-top:9px;}
+  .btn-danger{background:rgba(255,59,48,.10);color:var(--red);margin-top:9px;height:46px;font-size:15px;}
+
+  .status{
+    display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--secondary);
+    background:var(--field);border-radius:12px;padding:11px 13px;margin-bottom:15px;
+  }
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--tertiary);flex-shrink:0;transition:background .3s;}
+  .dot.on{background:var(--green);box-shadow:0 0 0 3px rgba(52,199,89,.18);}
+  .note{font-size:12.5px;color:var(--secondary);line-height:1.5;margin:12px 2px 0;}
+  .note b{color:#000;font-weight:600;}
+
+  /* ============ Toast ============ */
+  .toast{
+    position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 94px);
+    transform:translate(-50%,18px);opacity:0;pointer-events:none;
+    background:rgba(28,28,30,.94);color:#fff;
+    padding:11px 18px;border-radius:14px;font-size:14px;font-weight:500;
+    z-index:60;max-width:86%;text-align:center;letter-spacing:-.1px;
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    box-shadow:0 8px 26px rgba(0,0,0,.22);
+    transition:opacity .28s ease,transform .28s cubic-bezier(.22,.9,.3,1);
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+
+  <!-- ===== Top bar ===== -->
+  <header class="topbar">
+    <div class="title">
+      <img class="brand-logo" src="icons/logo.png" alt="Accounts Page logo" />
+      <h1>Accounts</h1>
+      <span class="count" id="count">0</span>
+    </div>
+    <button class="icon-btn" id="btnSettings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </header>
+
+  <!-- ===== Search ===== -->
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input id="search" type="search" placeholder="Search accounts" autocomplete="off" />
+  </div>
+
+  <!-- ===== List ===== -->
+  <main class="list" id="list"></main>
+
+  <div class="empty" id="empty">
+    <img class="brand-logo" src="icons/logo.png" alt="Accounts Page logo" />
+    <h3 id="emptyTitle">No accounts yet</h3>
+    <p id="emptyText">Tap the + button to add your first account.</p>
+  </div>
+
+  <!-- ===== FAB ===== -->
+  <button class="fab" id="btnAdd" aria-label="Add account">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+  </button>
+
+  <!-- ===== Backdrop ===== -->
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- ===== Add sheet ===== -->
+  <section class="sheet" id="addSheet" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+    <div class="grabber"></div>
+    <div class="sheet-head">
+      <h2 id="addTitle">New Account</h2>
+      <button class="link" data-close type="button">Cancel</button>
+    </div>
+
+    <form id="addForm" novalidate>
+      <div class="input-group">
+        <label for="fName">User Name</label>
+        <div class="input-wrap" id="wName">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <input id="fName" type="text" placeholder="e.g. rahul_92" autocomplete="off" />
+        </div>
+        <div class="hint" id="hName">User name is required</div>
+      </div>
+
+      <div class="input-group">
+        <label for="fContact">Mobile Number / Email ID</label>
+        <div class="input-wrap" id="wContact">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <input id="fContact" type="text" placeholder="9876543210 or name@mail.com" autocomplete="off" />
+        </div>
+        <div class="hint" id="hContact">Mobile number or email is required</div>
+      </div>
+
+      <div class="input-group">
+        <label for="fPass">Password</label>
+        <div class="input-wrap" id="wPass">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+          <input id="fPass" type="password" placeholder="Enter password" autocomplete="new-password" />
+          <button class="eye" type="button" id="addEye" aria-label="Show password">
+            <svg id="addEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+        <div class="hint" id="hPass">Password is required</div>
+      </div>
+
+      <button class="btn btn-primary" type="submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+        Added
+      </button>
+    </form>
+  </section>
+
+  <!-- ===== Settings sheet ===== -->
+  <section class="sheet" id="setSheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="grabber"></div>
+    <div class="sheet-head">
+      <h2 id="setTitle">Settings</h2>
+      <button class="link" data-close type="button">Done</button>
+    </div>
+
+    <div class="status">
+      <span class="dot" id="tgDot"></span>
+      <span id="tgStatus">Telegram not configured</span>
+    </div>
+
+    <form id="setForm" novalidate>
+      <div class="input-group">
+        <label for="fToken">Bot Token</label>
+        <div class="input-wrap" id="wToken">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+          <input id="fToken" type="password" placeholder="123456789:AA..." autocomplete="off" />
+          <button class="eye" type="button" id="tokEye" aria-label="Show token">
+            <svg id="tokEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+        <div class="hint" id="hToken">Enter bot token</div>
+      </div>
+
+      <div class="input-group">
+        <label for="fChat">Chat ID / Channel ID</label>
+        <div class="input-wrap" id="wChat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <input id="fChat" type="text" placeholder="-1001234567890" autocomplete="off" />
+        </div>
+        <div class="hint" id="hChat">Enter chat id</div>
+      </div>
+
+      <button class="btn btn-primary" type="submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        Save Settings
+      </button>
+      <button class="btn btn-ghost" type="button" id="btnTest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+        Send Test Message
+      </button>
+      <button class="btn btn-danger" type="button" id="btnClear">Clear Settings</button>
+
+      <p class="note">
+        <b>Kaise kaam karta hai:</b> neeche apna Bot Token aur Channel/Chat ID dalo.
+        Bot ko apne channel me <b>admin</b> banao (ya group me add karo).
+        Uske baad har naya account locally save hone ke saath hi Telegram par bhej diya jayega.
+      </p>
+    </form>
+  </section>
+
+  <!-- ===== Toast ===== -->
+  <div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============ Storage (safe fallback) ============ */
+  var KEY_A = "accounts_v1";
+  var KEY_S = "tg_settings_v1";
+  var mem = {};
+
+  function safeGet(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return mem[key] !== undefined ? mem[key] : fallback;
+    }
+  }
+  function safeSet(key, value) {
+    mem[key] = value;
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+  }
+
+  var accounts = safeGet(KEY_A, []);
+  if (!Array.isArray(accounts)) accounts = [];
+  var settings = safeGet(KEY_S, { token: "", chatId: "" });
+  if (!settings || typeof settings !== "object") settings = { token: "", chatId: "" };
+
+  /* ============ Helpers ============ */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fmtDate(ts) {
+    var d = new Date(ts);
+    var date = d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+    var time = d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+    return date + ", " + time;
+  }
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+  function tgReady() {
+    return !!(settings.token && settings.chatId);
+  }
+
+  /* ============ Toast ============ */
+  var toastEl = $("toast"), toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2300);
+  }
+
+  /* ============ Copy ============ */
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }).catch(function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  /* ============ Icons for JS-rendered cards ============ */
+  var ICO = {
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
+    eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>'
+  };
+
+  /* ============ Render ============ */
+  var listEl = $("list"), emptyEl = $("empty"), countEl = $("count"), searchEl = $("search");
+
+  function render() {
+    var q = (searchEl.value || "").trim().toLowerCase();
+    var items = accounts.filter(function (a) {
+      if (!q) return true;
+      return (a.name || "").toLowerCase().indexOf(q) > -1 ||
+             (a.contact || "").toLowerCase().indexOf(q) > -1;
+    });
+
+    countEl.textContent = accounts.length;
+
+    if (items.length === 0) {
+      listEl.innerHTML = "";
+      emptyEl.style.display = "block";
+      if (accounts.length > 0 && q) {
+        $("emptyTitle").textContent = "No match found";
+        $("emptyText").textContent = "Koi account \"" + searchEl.value.trim() + "\" se match nahi hua.";
+      } else {
+        $("emptyTitle").textContent = "No accounts yet";
+        $("emptyText").textContent = "Tap the + button to add your first account.";
+      }
+      return;
+    }
+
+    emptyEl.style.display = "none";
+    listEl.innerHTML = items.map(function (a, i) {
+      var initial = (a.name || "?").trim().charAt(0).toUpperCase();
+      return '' +
+      '<article class="card" data-id="' + esc(a.id) + '" style="animation-delay:' + Math.min(i * 45, 320) + 'ms">' +
+        '<div class="item-head">' +
+          '<div class="avatar">' + esc(initial) + '</div>' +
+          '<div class="who">' +
+            '<div class="uname">' + esc(a.name) + '</div>' +
+            '<div class="meta">Added ' + esc(fmtDate(a.createdAt)) + '</div>' +
+          '</div>' +
+          '<div class="head-actions">' +
+            '<button class="icon-btn sm danger" data-act="del" aria-label="Delete account">' + ICO.trash + '</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<div class="field-main">' +
+            '<span class="field-label">Mobile / Email</span>' +
+            '<span class="field-value">' + esc(a.contact) + '</span>' +
+          '</div>' +
+          '<div class="field-actions">' +
+            '<button class="copy-btn" data-act="copy" data-src="contact">' + ICO.copy + '<span>Copy</span></button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="field">' +
+          '<div class="field-main">' +
+            '<span class="field-label">Password</span>' +
+            '<span class="field-value masked" data-role="pwd">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span>' +
+          '</div>' +
+          '<div class="field-actions">' +
+            '<button class="icon-btn sm" data-act="eye" aria-label="Show password">' + ICO.eye + '</button>' +
+            '<button class="copy-btn" data-act="copy" data-src="password">' + ICO.copy + '<span>Copy</span></button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join("");
+  }
+
+  /* ============ List interactions ============ */
+  listEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (!btn) return;
+    var card = btn.closest(".card");
+    if (!card) return;
+    var id = card.getAttribute("data-id");
+    var acc = accounts.filter(function (a) { return a.id === id; })[0];
+    if (!acc) return;
+
+    var act = btn.getAttribute("data-act");
+
+    if (act === "copy") {
+      var src = btn.getAttribute("data-src");
+      var val = src === "contact" ? acc.contact : acc.password;
+      copyText(val).then(function (ok) {
+        if (!ok) { toast("Copy failed"); return; }
+        var label = btn.querySelector("span");
+        var old = label ? label.textContent : "";
+        btn.classList.add("done");
+        btn.innerHTML = ICO.check + "<span>Copied</span>";
+        toast((src === "contact" ? "Mobile / Email" : "Password") + " copied");
+        setTimeout(function () {
+          btn.classList.remove("done");
+          btn.innerHTML = ICO.copy + "<span>" + esc(old || "Copy") + "</span>";
+        }, 1500);
+      });
+      return;
+    }
+
+    if (act === "eye") {
+      var span = card.querySelector('[data-role="pwd"]');
+      var shown = span.getAttribute("data-shown") === "1";
+      if (shown) {
+        span.innerHTML = "&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;";
+        span.classList.add("masked");
+        span.removeAttribute("data-shown");
+        btn.innerHTML = ICO.eye;
+        btn.setAttribute("aria-label", "Show password");
+      } else {
+        span.textContent = acc.password;
+        span.classList.remove("masked");
+        span.setAttribute("data-shown", "1");
+        btn.innerHTML = ICO.eyeOff;
+        btn.setAttribute("aria-label", "Hide password");
+      }
+      return;
+    }
+
+    if (act === "del") {
+      if (!confirm("Delete \"" + acc.name + "\" ?\nYe account isi page se remove ho jayega.")) return;
+      accounts = accounts.filter(function (a) { return a.id !== id; });
+      safeSet(KEY_A, accounts);
+      render();
+      toast("Account deleted");
+      return;
+    }
+  });
+
+  searchEl.addEventListener("input", render);
+
+  /* ============ Sheets ============ */
+  var backdrop = $("backdrop");
+  var addSheet = $("addSheet");
+  var setSheet = $("setSheet");
+  var openSheet = null;
+
+  function open(sheet) {
+    closeSheet();
+    openSheet = sheet;
+    backdrop.classList.add("open");
+    sheet.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeSheet() {
+    if (!openSheet) return;
+    openSheet.classList.remove("open");
+    openSheet = null;
+    backdrop.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  backdrop.addEventListener("click", closeSheet);
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-close]")) closeSheet();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeSheet();
+  });
+
+  /* ============ Add account ============ */
+  var addForm = $("addForm");
+  var fName = $("fName"), fContact = $("fContact"), fPass = $("fPass");
+
+  $("btnAdd").addEventListener("click", function () {
+    addForm.reset();
+    clearErrors(addForm);
+    fPass.type = "password";
+    $("addEyeIcon").outerHTML = eyeSvg("open");
+    open(addSheet);
+    setTimeout(function () { fName.focus(); }, 380);
+  });
+
+  function eyeSvg(state) {
+    return state === "open"
+      ? '<svg id="addEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+      : '<svg id="addEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+  }
+
+  $("addEye").addEventListener("click", function () {
+    var show = fPass.type === "password";
+    fPass.type = show ? "text" : "password";
+    $("addEyeIcon").outerHTML = eyeSvg(show ? "closed" : "open");
+  });
+
+  function setError(wrapId, hintId, on) {
+    $(wrapId).classList.toggle("err", !!on);
+    $(hintId).classList.toggle("show", !!on);
+  }
+  function clearErrors(form) {
+    form.querySelectorAll(".input-wrap").forEach(function (w) { w.classList.remove("err"); });
+    form.querySelectorAll(".hint").forEach(function (h) { h.classList.remove("show"); });
+  }
+
+  addForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = fName.value.trim();
+    var contact = fContact.value.trim();
+    var pass = fPass.value;
+
+    var bad = false;
+    setError("wName", "hName", !name); if (!name) bad = true;
+    setError("wContact", "hContact", !contact); if (!contact) bad = true;
+    setError("wPass", "hPass", !pass); if (!pass) bad = true;
+    if (bad) { toast("Please fill all fields"); return; }
+
+    var acc = { id: uid(), name: name, contact: contact, password: pass, createdAt: Date.now() };
+    accounts.unshift(acc);
+    safeSet(KEY_A, accounts);
+    render();
+
+    closeSheet();
+    toast("Account added");
+
+    sendToTelegram(acc).then(function (r) {
+      if (r.ok) setTimeout(function () { toast("Sent to Telegram"); }, 1400);
+      else if (r.code !== "not_configured") setTimeout(function () { toast("Telegram: " + r.msg); }, 1400);
+      else setTimeout(function () { toast("Saved locally — Telegram not set"); }, 1400);
+    });
+  });
+
+  /* ============ Telegram ============ */
+  function tgPost(method, payload) {
+    var url = "https://api.telegram.org/bot" + settings.token + "/" + method;
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      return res.json().catch(function () { return { ok: false, description: "Bad response" }; });
+    }).catch(function () {
+      return { ok: false, description: "Network / CORS error" };
+    });
+  }
+
+  function fmtDateTelegram(ts) {
+    try {
+      return new Date(ts).toLocaleString("en-US", {
+        month: "short", day: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", hour12: true
+      });
+    } catch (e) { return fmtDate(ts); }
+  }
+
+  function sendToTelegram(acc) {
+    if (!tgReady()) return Promise.resolve({ ok: false, code: "not_configured" });
+    var text =
+      "\u{1F4DC} NEW ACCOUNT ADDED\n" +
+      "\n" +
+      "\u{1F464}Name   :   " + acc.name + "\n" +
+      "\u{1F4DE} Mobile/Em: " + acc.contact + "\n" +
+      "\u{1F5DD}\uFE0FPass  : " + acc.password + "\n" +
+      "\u{23F1}\uFE0FTime      : " + fmtDateTelegram(acc.createdAt) + "\n" +
+      "Source    : Accounts Page";
+    return tgPost("sendMessage", { chat_id: settings.chatId, text: text }).then(function (j) {
+      if (j.ok) return { ok: true };
+      return { ok: false, msg: j.description || "send failed" };
+    });
+  }
+
+  /* ============ Settings ============ */
+  var setForm = $("setForm"), fToken = $("fToken"), fChat = $("fChat");
+
+  function updateStatus() {
+    var on = tgReady();
+    $("tgDot").classList.toggle("on", on);
+    $("tgStatus").textContent = on
+      ? "Telegram connected (chat: " + settings.chatId + ")"
+      : "Telegram not configured";
+  }
+
+  $("btnSettings").addEventListener("click", function () {
+    clearErrors(setForm);
+    fToken.value = settings.token || "";
+    fChat.value = settings.chatId || "";
+    fToken.type = "password";
+    updateStatus();
+    open(setSheet);
+  });
+
+  $("tokEye").addEventListener("click", function () {
+    var show = fToken.type === "password";
+    fToken.type = show ? "text" : "password";
+    $("tokEyeIcon").outerHTML = show
+      ? '<svg id="tokEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+      : '<svg id="tokEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+  });
+
+  setForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var token = fToken.value.trim();
+    var chat = fChat.value.trim();
+    var bad = false;
+    setError("wToken", "hToken", !token); if (!token) bad = true;
+    setError("wChat", "hChat", !chat); if (!chat) bad = true;
+    if (bad) { toast("Token aur Chat ID dono chahiye"); return; }
+
+    settings = { token: token, chatId: chat };
+    safeSet(KEY_S, settings);
+    updateStatus();
+    toast("Settings saved");
+  });
+
+  $("btnTest").addEventListener("click", function () {
+    if (!tgReady()) { toast("Pehle token aur chat ID save karo"); return; }
+    var btn = $("btnTest");
+    btn.disabled = true; btn.style.opacity = ".6";
+    tgPost("sendMessage", {
+      chat_id: settings.chatId,
+      text: "\u{1F4DC} CONNECTION TEST\n\n\u{2705} Telegram connection is working.\nSource    : Accounts Page"
+    }).then(function (j) {
+      btn.disabled = false; btn.style.opacity = "";
+      if (j.ok) toast("Test message sent");
+      else toast("Failed: " + (j.description || "error"));
+    });
+  });
+
+  $("btnClear").addEventListener("click", function () {
+    settings = { token: "", chatId: "" };
+    safeSet(KEY_S, settings);
+    fToken.value = ""; fChat.value = "";
+    updateStatus();
+    toast("Settings cleared");
+  });
+
+  /* ============ PWA: install + shortcuts ============ */
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+
+  (function handleShortcut() {
+    var action = null;
+    try { action = new URLSearchParams(window.location.search).get("action"); } catch (e) {}
+    if (action === "add" || action === "settings") {
+      setTimeout(function () {
+        (action === "add" ? $("btnAdd") : $("btnSettings")).click();
+      }, 600);
+    }
+  })();
+
+  /* ============ Init ============ */
+  updateStatus();
+  render();
+})();
+</script>
+</body>
+</html>
